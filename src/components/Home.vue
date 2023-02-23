@@ -33,7 +33,7 @@ function toFee(idx: number) {
     <TabView :cur-idx="state.step" ref="RefChild" @update-tab="updateTab" @back-action="backAction"/>
 
     <UploadView v-if="state.step == 0" class="upload-view" @update-tab="toFee"/>
-    <FeeView v-else-if="state.step == 1" class="fee-view" />
+    <FeeView v-else-if="state.step == 1" class="fee-view" @update-tab="toFee"/>
     <AddrView v-else-if="state.step == 2" />
     <ArchiveView v-else-if="state.step == 3" />
   </div>

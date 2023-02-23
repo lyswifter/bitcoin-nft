@@ -2,11 +2,28 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from "element-plus";
 
+import data from "../router/data";
+
 let state = reactive({ input: '', isMintAble: false, isMinting: false })
 
 function mintAction() {
     if (state.isMintAble) {
+        if (state.input.length == 0) {
+            ElMessage({
+                message: "Address is needed.",
+                type: "warning",
+            });
+            return
+        }
+
+        // format check
+
         state.isMinting = true
+
+        data.mintAction(state.input).then((val) => {
+            console.log(val)
+            state.isMinting = false
+        })
     } else {
         // no bale to mint
         ElMessage({

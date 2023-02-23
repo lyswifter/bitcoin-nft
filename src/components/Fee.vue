@@ -1,32 +1,57 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+
+import data from "../router/data";
+
+const emit = defineEmits({
+    updateTab(idx: number) {
+        return idx >= 0 && idx < 4
+    }
+})
+
+let state = reactive({
+    recommendedFee: 0,
+    gasFee: 0,
+    address: '',
+    bal: 0,
+})
 
 function continueAction() {
+    emit('updateTab', 2)
 }
+
+onMounted(() => {
+    data.queryFeeAction().then((val) => {
+        state.recommendedFee = val.recommended_fee
+        state.gasFee = val.estimate_gas
+        state.address = val.receive_address
+        state.bal = val.current_balance
+    })
+})
 </script>
 
 <template>
     <div class="fee-container-view">
         <div class="fee-content-view">
             <div class="title-view">
-                Current recommended fee 20
+                Current recommended fee {{ state.recommendedFee }}
             </div>
 
             <div class="tfee-view">
                 <div class="title-view">Transaction fee:</div>
-                <div class="gas-view">Total gas fee:0.00050400 BTC</div>
-                <div class="fee-view">0.00050400 BTC</div>
-                <div class="desc-view">Tranfer 0.00050900 BTC to the following address to mint</div>
+                <div class="gas-view">Total gas fee:{{ state.gasFee }} BTC</div>
+                <div class="fee-view">{{ state.gasFee }} BTC</div>
+                <div class="desc-view">Tranfer {{state.gasFee}} BTC to the following address to mint</div>
             </div>
 
             <div class="bal-view">
                 <div class="addr-view">
                     <img src="../assets/icon_24_trens@2x.png" style="width: 24px;height: 24px;" alt="">
-                    <span>tb1p2rvyyezqnxfktlm773rzxglask07j730jar90qlr6fpstwwl4uqty4qt2</span>
+                    <span>{{ state.address }}</span>
                 </div>
 
                 <div class="val-view">
-                    <div class="cur-bal-view">Current balance <span>0.01467324 BTC</span></div>
+                    <div class="cur-bal-view">Current balance <span>{{ state.bal }} BTC</span></div>
                     <div class="cur-desc-view">
                         <img src="../assets/icon_16_tips@2x.png" style="width: 16px;height: 16px;" alt="">
                         Refresh will change the receive address, if you already sent BTC to previous address, balance will
