@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 
-import type { UploadFile, UploadFiles } from 'element-plus'
+import type { UploadFile, UploadFiles, UploadRawFile } from 'element-plus'
+import { ElMessage } from "element-plus";
+import { domain } from '../router/domain';
+
+var uploadTarget = domain.domainUrl + 'upload'
 
 const emit = defineEmits({
     updateTab(idx: number) {
@@ -11,7 +15,7 @@ const emit = defineEmits({
 
 let fileList = ref([])
 
-let state = reactive({url: '', srcList: [] as string[]})
+let state = reactive({url: '', srcList: [] as string[], filename: ''})
 
 function handleExceed() {
     console.log("file exceed")
@@ -19,12 +23,20 @@ function handleExceed() {
 
 function handleSuccess(response: any, uploadFile: UploadFile, uploadFiles: UploadFiles) {
 
-    // get image url
+    // reset
+    state.filename = ''
+    state.url = ''
+    state.srcList = []
 
     if (response.code == 0) {
         state.url = response.data
         state.srcList.push(response.data)
 
+        let walletId = localStorage.getItem('wallet_id')
+        if (walletId != response.data.wallet_id) {
+            localStorage.clear()
+        }
+        
         localStorage.setItem('wallet_id', response.data.wallet_id)
     } else {
     }
@@ -36,15 +48,22 @@ function hanleError(error: Error, uploadFile: UploadFile, uploadFiles: UploadFil
     console.log(error)
 }
 
+function handleBeforeUpload(rawFile: UploadRawFile) {
+    localStorage.clear() // clear any exist information
+
+    if (rawFile.size > 1024) {
+        ElMessage.error("File size is exceeded, the limit is 1024 byte.")
+        return false
+    }
+
+    state.filename = rawFile.name
+}
+
 function continueAction() {
     emit('updateTab', 1)
 }
 
 var uploadHeader = {}
-
-//https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15
-//http://172.16.10.26:8080/api/upload
-var uploadTarget = 'http://172.16.10.26:8080/api/upload'
 
 </script>
 
@@ -61,8 +80,10 @@ var uploadTarget = 'http://172.16.10.26:8080/api/upload'
             :on-success="handleSuccess"
             :on-exceed="handleExceed" 
             :auto-upload="true" 
+            :before-upload="handleBeforeUpload"
             v-model:file-list="fileList"
             :headers="uploadHeader"
+            :name="state.filename"
             :action="uploadTarget">
                 <el-icon class="el-icon--upload">
                     <img src="../assets/icon_upload_@2x.png" style="width: 48px;height: 48px;" alt="">

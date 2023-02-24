@@ -4,7 +4,7 @@ import { ElMessage } from "element-plus";
 
 import data from "../router/data";
 
-let state = reactive({ input: '', isMintAble: false, isMinting: false })
+let state = reactive({ input: '', isMintAble: false, isMinting: false, inscriptId: '' })
 
 function mintAction() {
     if (state.isMintAble) {
@@ -22,7 +22,10 @@ function mintAction() {
 
         data.mintAction(state.input).then((val) => {
             console.log(val)
-            state.isMinting = false
+            state.isMinting = true
+            state.inscriptId = val
+
+            localStorage.setItem("inscribe_id", state.inscriptId)
         })
     } else {
         // no bale to mint
@@ -63,14 +66,14 @@ function inputChange(value: string | number) {
                         Minting to
                     </div>
                     <div class="m-to-content">
-                        tb1pqts6pxrhr2d8tle9gOt8nnrptae8h47pmmmwpn4as3a4uf2602q44rh95
+                        {{ state.input }}
                     </div>
 
                     <div class="m-insp-title">
                         Inscription id
                     </div>
                     <div class="m-insp-content">
-                        333e66bad68a967bd98d16dbc03d1d055050fbb856f1d00ca19b2deObf9a96e90
+                        {{ state.inscriptId }}
                     </div>
                 </div>
             </div>

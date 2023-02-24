@@ -16,4 +16,6 @@ export let Apis = {
     queryFee: domain.domainUrl + 'createWalletAndQueryFee',
     
     mint: domain.domainUrl + 'mint',
+
+    mintStatus: domain.domainUrl + 'queryTransferStatus',
 }

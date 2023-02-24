@@ -1,57 +1,61 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { ElMessage } from "element-plus";
+import { ref, reactive, onMounted } from 'vue'
 
-let state = reactive({ input: '', isMintAble: false, isMinting: false })
+import data from "../router/data";
 
-function mintAction() {
-    if (state.isMintAble) {
-        state.isMinting = true
-    } else {
-        // no bale to mint
-        ElMessage({
-            message: "Address is needed.",
-            type: "warning",
-        });
-        return
+let state = reactive({ targetAddr: '', inscribeId: '', hash: '', process: 'NFT is Minting' })
+
+onMounted(() => {
+    if (localStorage.getItem("user_info")) {
+        let val = JSON.parse(localStorage.getItem("user_info")!)
+        state.targetAddr = val.receive_address;
     }
-}
 
-function inputChange(value: string | number) {
-    if (value) {
-        state.isMintAble = true
-    } else {
-        state.isMintAble = false
+    if (localStorage.getItem('inscribe_id')) {
+        state.inscribeId = localStorage.getItem('inscribe_id')!
     }
-}
+
+    // 
+
+    data.queryMintState().then((val) => {
+        console.log(val)
+
+        if (val) {
+            state.hash = val
+
+            state.process = 'NFT Mint Finished'
+        }
+    })
+})
+
 </script>
 
 <template>
     <div class="addr-container-view">
         <div class="addr-content-view">
             <img src="../assets/icon_success@2x.png" alt="" style="width: 80px;height: 80px;margin-top: 64px;">
-            <div class="state-view">NFT Mint Finished</div>
+            <div class="state-view">{{ state.process }}</div>
 
             <div class="m-content-view">
                 <div class="m-title">
                     Minting to
                 </div>
                 <div class="m-content">
-                    tb1pqts6pxrhr2d8tle9gOt8nnrptae8h47pmmmwpn4as3a4uf2602q44rh95
+                    {{ state.targetAddr }}
                 </div>
 
                 <div class="m-title">
                     Inscription id
                 </div>
                 <div class="m-content">
-                    333e66bad68a967bd98d16dbc03d1d055050fbb856f1d00ca19b2deObf9a96e90
+                    {{ state.inscribeId }}
                 </div>
 
                 <div class="m-title">
-                    Inscription id
+                    Transaction hash
                 </div>
                 <div class="m-content">
-                    333e66bad68a967bd98d16dbc03d1d055050fbb856f1d00ca19b2deObf9a96e90
+                    {{ state.hash }}
                 </div>
             </div>
         </div>
