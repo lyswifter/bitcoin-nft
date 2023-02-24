@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from "element-plus";
 
 import data from "../router/data";
 
-let state = reactive({ input: '', isMintAble: false, isMinting: false, inscriptId: '' })
+let state = reactive({ input: '', isMintAble: false, isMinting: false, inscriptId: '', targetAddr: '' })
 
 function mintAction() {
     if (state.isMintAble) {
@@ -44,6 +44,28 @@ function inputChange(value: string | number) {
         state.isMintAble = false
     }
 }
+
+onMounted(() => {
+    if (localStorage.getItem("user_info")) {
+        let val = JSON.parse(localStorage.getItem("user_info")!)
+        state.targetAddr = val.receive_address;
+        state.input = state.targetAddr
+    }
+
+    if (localStorage.getItem('inscribe_id')) {
+        state.inscriptId = localStorage.getItem('inscribe_id')!
+    }
+
+    // 
+
+    data.queryMintState().then((val) => {
+        console.log(val)
+
+        if (!val) {
+            state.isMinting = true
+        }
+    })
+})
 </script>
 
 <template>
@@ -66,7 +88,7 @@ function inputChange(value: string | number) {
                         Minting to
                     </div>
                     <div class="m-to-content">
-                        {{ state.input }}
+                        {{ state.input ? state.input : state.targetAddr }}
                     </div>
 
                     <div class="m-insp-title">
